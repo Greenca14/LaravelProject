@@ -13,9 +13,9 @@ return new class extends Migration
 {
     Schema::create('authors', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('publication_id')->constrained()->onDelete('cascade');
-        $table->foreignId('person_id')->constrained()->onDelete('cascade');
-        $table->decimal('contribution_share', 5, 2)->check('contribution_share > 0 AND contribution_share <= 100');
+        $table->foreignId('publication_id')->constrained('publications')->onDelete('cascade');
+        $table->foreignId('person_id')->constrained('persons')->onDelete('cascade'); // ← исправлено на persons
+        $table->decimal('contribution_share', 5, 2);
         $table->timestamps();
     });
 }
