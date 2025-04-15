@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Person;
 
 class PersonController extends Controller
-{
+{ 
     /**
      * Display a listing of the resource.
      */

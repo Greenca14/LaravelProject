@@ -12,7 +12,7 @@ Route::get('/', function () {
 Route::get('/hello', function () {
     return view('hello', [ 'title' => 'Hello world!']);
 });
-
+ 
 Route::get('/persons/{id}', [PersonController::class, 'show'])->name('persons.show');
 
 Route::resource('journals', JournalController::class);

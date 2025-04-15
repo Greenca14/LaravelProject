@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Author extends Model
 {
     protected $fillable = ['publication_id', 'person_id', 'contribution_share'];
-
+ 
     public function publication(): BelongsTo
     {
         return $this->belongsTo(Publication::class);

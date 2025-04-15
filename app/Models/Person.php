@@ -16,7 +16,7 @@ class Person extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
-
+ 
     public function authors(): HasMany
     {
         return $this->hasMany(Author::class);

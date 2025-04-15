@@ -4,4 +4,4 @@
     @foreach($publication->authors as $author)
         <li>{{ $author->person->full_name }}</li>
     @endforeach
-</ul>
+</ul>  

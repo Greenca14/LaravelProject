@@ -4,4 +4,4 @@
     @foreach($journal->publications as $publication)
         <li>{{ $publication->title }}</li>
     @endforeach
-</ul>
+</ul> 

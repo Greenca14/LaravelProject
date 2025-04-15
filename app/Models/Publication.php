@@ -20,7 +20,7 @@ class Publication extends Model
     {
         return $this->belongsTo(Journal::class);
     }
-
+ 
     public function authors(): HasMany
     {
         return $this->hasMany(Author::class);
