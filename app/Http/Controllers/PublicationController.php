@@ -6,6 +6,7 @@ use App\Models\Publication;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Journal;
 
 class PublicationController extends Controller
 { 
@@ -14,7 +15,7 @@ class PublicationController extends Controller
      */
     public function index()
     {
-        $publications = Publication::all();
+        $publications = Publication::with('journal')->get();
         return view('publications.index', compact('publications'));
     }
 
@@ -27,43 +28,45 @@ class PublicationController extends Controller
         return view('publications.show', compact('publication'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $journals = Journal::all();
+        return view('publications.create', compact('journals'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'journal_id' => 'required|exists:journals,id',
+            'title' => 'required|string|max:255',
+            'publication_date' => 'required|date',
+        ]);
+
+        Publication::create($validated);
+        return redirect()->route('publications.index')->with('success', 'Публикация добавлена!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Publication $publication)
     {
-        //
+        $journals = Journal::all();
+        return view('publications.edit', compact('publication', 'journals'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Publication $publication)
     {
-        //
+        $validated = $request->validate([
+            'journal_id' => 'required|exists:journals,id',
+            'title' => 'required|string|max:255',
+            'publication_date' => 'required|date',
+        ]);
+
+        $publication->update($validated);
+        return redirect()->route('publications.index')->with('success', 'Публикация обновлена!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Publication $publication)
     {
-        //
+        $publication->delete();
+        return redirect()->route('publications.index')->with('success', 'Публикация удалена!');
     }
 }
