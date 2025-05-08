@@ -13,11 +13,18 @@ class PublicationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $publications = Publication::with('journal')->get();
-        return view('publications.index', compact('publications'));
-    }
+
+
+     public function index(Request $request)
+     {
+         $perPage = $request->input('per_page', 15); // По умолчанию 10 на странице
+         
+         $publications = Publication::with('journal')
+             ->orderBy('publication_date', 'desc')
+             ->paginate($perPage);
+         
+         return view('publications.index', compact('publications'));
+     }
 
     /**
      * Display the specified resource.
