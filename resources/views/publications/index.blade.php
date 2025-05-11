@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="container">
+    
     <h1>Список публикаций</h1>
     
     @if(session('success'))
@@ -10,7 +11,6 @@
         </div>
     @endif
 
-    <!-- Форма выбора количества элементов на странице -->
     <div class="row mb-4">
         <div class="col-md-3">
             <form method="GET" action="{{ route('publications.index') }}" class="form-inline">
@@ -26,19 +26,19 @@
             </form>
         </div>
         <div class="col-md-6 text-center">
-            <!-- Информация о пагинации -->
             <div class="pagination-info">
                 Показано с {{ $publications->firstItem() }} по {{ $publications->lastItem() }} из {{ $publications->total() }} записей
             </div>
         </div>
+        @can('admin')
         <div class="col-md-3 text-end">
             <a href="{{ route('publications.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Добавить публикацию
             </a>
         </div>
+        @endcan
     </div>
 
-    <!-- Таблица с публикациями -->
     <div class="table-responsive">
         <table class="table table-striped table-hover">
             <thead class="table-dark">
@@ -46,7 +46,9 @@
                     <th>@sortablelink('title', 'Название')</th>
                     <th>@sortablelink('journal.name', 'Журнал')</th>
                     <th>@sortablelink('publication_date', 'Дата публикации')</th>
+                    @can('admin')
                     <th>Действия</th>
+                    @endcan
                 </tr>
             </thead>
             <tbody>
@@ -55,34 +57,37 @@
                         <td>{{ $publication->title }}</td>
                         <td>{{ $publication->journal->name }}</td>
                         <td>{{ $publication->publication_date->format('d.m.Y') }}</td>
+                        @can('admin')
                         <td>
                             <div class="btn-group" role="group">
                                 <a href="{{ route('publications.edit', $publication->id) }}" 
-                                   class="btn btn-sm btn-outline-warning" title="Редактировать">
+                                   class="btn btn-sm btn-warning" title="Редактировать">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('publications.destroy', $publication->id) }}" method="POST">
+                                <form action="{{ route('publications.destroy', $publication->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                            onclick="return confirm('Вы уверены, что хотите удалить эту публикацию?')"
+                                    <button type="submit" class="btn btn-sm btn-danger" 
+                                            onclick="return confirm('Вы уверены?')"
                                             title="Удалить">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </div>
                         </td>
+                        @endcan
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center">Нет публикаций для отображения</td>
+                        <td colspan="{{ Gate::allows('admin') ? 4 : 3 }}" class="text-center">
+                            Нет публикаций для отображения
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <!-- Пагинация -->
     <div class="row mt-3">
         <div class="col-md-12 d-flex justify-content-center">
             {{ $publications->withQueryString()->links('pagination::bootstrap-5') }}
@@ -90,21 +95,5 @@
     </div>
 </div>
 
-<!-- Подключение иконок Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-<style>
-    .pagination-info {
-        padding: 8px;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-        display: inline-block;
-    }
-    .table th {
-        white-space: nowrap;
-    }
-    .btn-group {
-        white-space: nowrap;
-    }
-</style>
 @endsection
