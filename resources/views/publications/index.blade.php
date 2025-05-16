@@ -1,99 +1,117 @@
 @extends('layouts.app')
 
+@section('breadcrumbs')
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('home') }}">Главная</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Публикации</li>
+    </ol>
+</nav>
+@endsection
+
+@section('page-header')
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-title">
+        <i class="fas fa-file-alt me-2"></i> Научные публикации
+    </h1>
+    @can('admin')
+    <a href="{{ route('publications.create') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Добавить публикацию
+    </a>
+    @endcan
+</div>
+@endsection
+
 @section('content')
-<div class="container">
-    
-    <h1>Список публикаций</h1>
-    
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <form method="GET" action="{{ route('publications.index') }}" class="form-inline">
-                <div class="input-group">
-                    <select name="per_page" class="form-select" onchange="this.form.submit()">
-                        <option value="5" {{ $publications->perPage() == 5 ? 'selected' : '' }}>5 на странице</option>
-                        <option value="10" {{ $publications->perPage() == 10 ? 'selected' : '' }}>10 на странице</option>
-                        <option value="15" {{ $publications->perPage() == 15 ? 'selected' : '' }}>15 на странице</option>
-                        <option value="20" {{ $publications->perPage() == 20 ? 'selected' : '' }}>20 на странице</option>
-                    </select>
-                    <span class="input-group-text">элементов</span>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6 text-center">
-            <div class="pagination-info">
-                Показано с {{ $publications->firstItem() }} по {{ $publications->lastItem() }} из {{ $publications->total() }} записей
-            </div>
-        </div>
-        @can('admin')
-        <div class="col-md-3 text-end">
-            <a href="{{ route('publications.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Добавить публикацию
-            </a>
-        </div>
-        @endcan
-    </div>
-
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>@sortablelink('title', 'Название')</th>
-                    <th>@sortablelink('journal.name', 'Журнал')</th>
-                    <th>@sortablelink('publication_date', 'Дата публикации')</th>
-                    @can('admin')
-                    <th>Действия</th>
-                    @endcan
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($publications as $publication)
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
                     <tr>
+                        <th width="80">ID</th>
+                        <th>Название</th>
+                        <th>Журнал</th>
+                        <th>Дата</th>
+                        <th>Авторы</th>
+                        <th width="150">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($publications as $publication)
+                    <tr>
+                        <td>{{ $publication->id }}</td>
                         <td>{{ $publication->title }}</td>
-                        <td>{{ $publication->journal->name }}</td>
+                        <td>{{ $publication->journal->name ?? 'Не указан' }}</td>
                         <td>{{ $publication->publication_date->format('d.m.Y') }}</td>
-                        @can('admin')
                         <td>
-                            <div class="btn-group" role="group">
-                                <a href="{{ route('publications.edit', $publication->id) }}" 
-                                   class="btn btn-sm btn-warning" title="Редактировать">
+                            @foreach($publication->authors as $author)
+                            <span class="badge bg-secondary me-1">
+                                {{ $author->person->full_name }}
+                            </span>
+                            @endforeach
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('publications.show', $publication->id) }}" class="btn btn-sm btn-outline-info" title="Просмотр">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                @can('admin')
+                                <a href="{{ route('publications.edit', $publication->id) }}" class="btn btn-sm btn-outline-warning" title="Редактировать">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <form action="{{ route('publications.destroy', $publication->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" 
-                                            onclick="return confirm('Вы уверены?')"
-                                            title="Удалить">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить" onclick="return confirm('Удалить публикацию?')">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
+                                @endcan
                             </div>
                         </td>
-                        @endcan
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="{{ Gate::allows('admin') ? 4 : 3 }}" class="text-center">
-                            Нет публикаций для отображения
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-md-12 d-flex justify-content-center">
-            {{ $publications->withQueryString()->links('pagination::bootstrap-5') }}
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+        
+        @if($publications->hasPages())
+        <div class="card-footer bg-transparent py-2">
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    {{-- Previous Page Link --}}
+                    <li class="page-item {{ $publications->onFirstPage() ? 'disabled' : '' }}">
+                        <a class="page-link" href="{{ $publications->previousPageUrl() }}" aria-label="Previous">
+                            <span class="d-none d-md-inline">Назад</span>
+                            <span class="d-inline d-md-none">&laquo;</span>
+                        </a>
+                    </li>
+
+                    {{-- Pagination Elements --}}
+                    @foreach ($publications->getUrlRange(1, $publications->lastPage()) as $page => $url)
+                        @if($page == $publications->currentPage())
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endforeach
+
+                    {{-- Next Page Link --}}
+                    <li class="page-item {{ !$publications->hasMorePages() ? 'disabled' : '' }}">
+                        <a class="page-link" href="{{ $publications->nextPageUrl() }}" aria-label="Next">
+                            <span class="d-none d-md-inline">Вперед</span>
+                            <span class="d-inline d-md-none">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        @endif
     </div>
 </div>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 @endsection

@@ -3,66 +3,59 @@
 namespace App\Http\Controllers;
 
 use App\Models\Journal;
-
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class JournalController extends Controller
-{ 
-    /**
-     * Display a listing of the resource.
-     */
+{
+
+
     public function index()
     {
-        $journals = Journal::all();
+        $journals = Journal::withCount('publications')->paginate(10);
         return view('journals.index', compact('journals'));
     }
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+
+    public function create()
     {
-        $journal = Journal::with('publications')->findOrFail($id);
+        return view('journals.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:journals',
+        ]);
+
+        Journal::create($validated);
+
+        return redirect()->route('journals.index')->with('success', 'Журнал добавлен');
+    }
+
+    public function show(Journal $journal)
+    {
+        $journal->load('publications.authors.person');
         return view('journals.show', compact('journal'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function edit(Journal $journal)
     {
-        //
+        return view('journals.edit', compact('journal'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(Request $request, Journal $journal)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:journals,name,'.$journal->id,
+        ]);
+
+        $journal->update($validated);
+
+        return redirect()->route('journals.index')->with('success', 'Журнал обновлен');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(Journal $journal)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $journal->delete();
+        return redirect()->route('journals.index')->with('success', 'Журнал удален');
     }
 }

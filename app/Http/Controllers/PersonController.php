@@ -2,67 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Person;
 use Illuminate\Http\Request;
 
-use App\Models\Person;
-
 class PersonController extends Controller
-{ 
-    /**
-     * Display a listing of the resource.
-     */
+{
+
     public function index()
     {
-        //
+        $persons = Person::paginate(10);
+        return view('persons.index', compact('persons'));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function create()
     {
-        $person = Person::with('publications')->findOrFail($id);
+        return view('persons.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'birth_date' => 'required|date',
+        ]);
+
+        Person::create($validated);
+
+        return redirect()->route('persons.index')->with('success', 'Персона добавлена');
+    }
+
+    public function show(Person $person)
+    {
         return view('persons.show', compact('person'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function edit(Person $person)
     {
-        //
+        return view('persons.edit', compact('person'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(Request $request, Person $person)
     {
-        //
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'birth_date' => 'required|date',
+        ]);
+
+        $person->update($validated);
+
+        return redirect()->route('persons.index')->with('success', 'Персона обновлена');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(Person $person)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $person->delete();
+        return redirect()->route('persons.index')->with('success', 'Персона удалена');
     }
 }

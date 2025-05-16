@@ -13,8 +13,6 @@ class PublicationController extends Controller
     /**
      * Display a listing of the resource.
      */
-
-
      public function index(Request $request)
      {
          $perPage = $request->input('per_page', 15); // По умолчанию 10 на странице
@@ -30,10 +28,10 @@ class PublicationController extends Controller
      * Display the specified resource.
      */
     public function show($id)
-    {
-        $publication = Publication::with('authors')->findOrFail($id);
-        return view('publications.show', compact('publication'));
-    }
+        {
+            $publication = Publication::with(['journal', 'authors.person'])->findOrFail($id);
+            return view('publications.show', compact('publication'));
+        }
 
     public function create()
     {
@@ -76,4 +74,5 @@ class PublicationController extends Controller
         $publication->delete();
         return redirect()->route('publications.index')->with('success', 'Публикация удалена!');
     }
+
 }
