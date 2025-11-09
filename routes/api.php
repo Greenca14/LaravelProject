@@ -16,4 +16,4 @@ Route::get('/persons/{id}', [PersonController::class, 'show']);
 
 // Publication API routes
 Route::get('/publications', [PublicationController::class, 'index']);
-Route::get('/publications/{id}', [PublicationController::class, 'show']);
+Route::get('/publications/{id}', [PublicationController::class, 'show']); 
