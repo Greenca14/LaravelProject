@@ -15,12 +15,9 @@
         <i class="fas fa-users me-2"></i> Персоны
     </h1>
     <div>
-        <a href="{{ route('home') }}" class="btn btn-outline-secondary me-2">
-            <i class="fas fa-home"></i>
-        </a>
         @can('admin')
         <a href="{{ route('persons.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i> Добавить
+            <i class="fas fa-plus me-1"></i> Добавить автора
         </a>
         @endcan
     </div>
