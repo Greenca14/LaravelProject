@@ -8,27 +8,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
-class AuthController extends Controller
+class AuthControllerApi extends Controller
 {
     public function login(Request $request)
     {
-        // Валидация
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:8',
         ]);
 
-        // Поиск пользователя
         $user = User::where('email', $request->email)->first();
 
-        // Проверка пароля
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
         }
 
-        // Создание токена
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
@@ -45,7 +41,6 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Удаляем все токены пользователя
         $request->user()->tokens()->delete();
 
         return response()->json([
