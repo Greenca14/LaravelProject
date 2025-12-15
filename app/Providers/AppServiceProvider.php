@@ -4,8 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,17 +19,20 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
-        //$this->registerPolicies();
+        Paginator::defaultView('pagination::bootstrap-4');
+        
+        Gate::define('create-person', function ($user) {
+            return $user && ($user->is_admin || $user->role === 'editor');
+        });
 
         Gate::define('admin', function ($user) {
-            return $user->isAdmin();
+            return $user->is_admin;
         });
 
-        Gate::define('view-only', function (User $user) {
-            return !$user->isAdmin();
+        Gate::define('view-only', function ($user) {
+            return !$user->is_admin;
         });
-        
     }
 }

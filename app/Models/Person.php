@@ -9,7 +9,7 @@ class Person extends Model
 {
     protected $table = 'persons';
 
-    protected $fillable = ['full_name', 'birth_date'];
+    protected $fillable = ['full_name', 'birth_date', 'avatar'];
 
     protected $casts = [
         'birth_date' => 'date:Y-m-d',

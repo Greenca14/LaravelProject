@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\JournalControllerApi;
 use App\Http\Controllers\Api\PersonControllerApi;
 use App\Http\Controllers\Api\PublicationControllerApi;
 
+Route::post('/persons', [PersonControllerApi::class, 'store']);
+
 Route::post('/login', [AuthControllerApi::class, 'login']);
 Route::get('/journals', [JournalControllerApi::class, 'index']);
 Route::get('/journals_total', [JournalControllerApi::class, 'total']);

@@ -9,29 +9,18 @@ use Illuminate\Http\Request;
 class PublicationControllerApi extends Controller
 {
     public function index(Request $request)
-{
-    $perPage = $request->perpage ?? 5;
-    $page = $request->page ?? 0;
-    
-    $publications = Publication::with(['journal', 'authors.person'])
-        ->orderBy('created_at', 'desc')
-        ->limit($perPage)
-        ->offset($perPage * $page)
-        ->get();
+    {
+        $perPage = $request->perpage ?? 5;
+        $page = $request->page ?? 0;
         
-    $publications->transform(function ($publication) {
-        $publication->authors = $publication->authors->map(function ($author) {
-            return [
-                'id' => $author->person->id,
-                'full_name' => $author->person->full_name,
-                'contribution_share' => $author->contribution_share
-            ];
-        });
-        return $publication;
-    });
-    
-    return response()->json($publications);
-}
+        $publications = Publication::with(['journal', 'persons'])
+            ->orderBy('created_at', 'desc')
+            ->limit($perPage)
+            ->offset($perPage * $page)
+            ->get();
+            
+        return response()->json($publications);
+    }
 
     public function total()
     {
@@ -41,7 +30,7 @@ class PublicationControllerApi extends Controller
 
     public function show($id)
     {
-        $publication = Publication::with(['journal', 'authors'])->find($id);
+        $publication = Publication::with(['journal', 'persons'])->find($id);
         
         if (!$publication) {
             return response()->json(['error' => 'Publication not found'], 404);
