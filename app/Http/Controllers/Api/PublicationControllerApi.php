@@ -12,7 +12,7 @@ class PublicationControllerApi extends Controller
     {
         $perPage = $request->perpage ?? 5;
         $page = $request->page ?? 0;
-        
+
         $publications = Publication::with(['journal', 'persons'])
             ->orderBy('created_at', 'desc')
             ->limit($perPage)

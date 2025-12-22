@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class AuthControllerApi extends Controller
 {
@@ -24,7 +25,7 @@ class AuthControllerApi extends Controller
                 'message' => 'Invalid credentials'
             ], 401);
         }
-
+        
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
@@ -50,12 +51,18 @@ class AuthControllerApi extends Controller
 
     public function user(Request $request)
     {
+        $user = $request->user(); 
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         return response()->json([
             'user' => [
-                'id' => $request->user()->id,
-                'name' => $request->user()->name,
-                'email' => $request->user()->email,
-                'is_admin' => $request->user()->is_admin,
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'is_admin' => $user->is_admin,
             ]
         ]);
     }

@@ -12,7 +12,7 @@ class PersonControllerApi extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->perpage ?? 10;
+        $perPage = $request->perpage ?? 5;
         $page = $request->page ?? 0;
         
         $persons = Person::withCount('publications')
@@ -38,7 +38,7 @@ class PersonControllerApi extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'birth_date' => 'nullable|date',
-            'avatar' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048' // аватарка
+            'avatar' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:2048'
         ]);
 
         $avatarUrl = null;
